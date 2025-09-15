@@ -5,9 +5,9 @@ metadata:
   name: nginx
   namespace: argocd
   annotations:
-    notifications.argoproj.io/subscribe.on-deployed.teams: dev-cicd-notifications
-    notifications.argoproj.io/subscribe.on-sync-failed.teams: dev-cicd-notifications
-    notifications.argoproj.io/subscribe.on-sync-succeeded.teams: dev-cicd-notifications
+    notifications.argoproj.io/subscribe.on-deployed.teams: channelName
+    notifications.argoproj.io/subscribe.on-sync-failed.teams: channelName
+    notifications.argoproj.io/subscribe.on-sync-succeeded.teams: channelName
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
