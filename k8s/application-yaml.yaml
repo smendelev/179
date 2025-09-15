@@ -8,6 +8,7 @@ metadata:
     notifications.argoproj.io/subscribe.on-deployed.teams: channelName
     notifications.argoproj.io/subscribe.on-sync-failed.teams: channelName
     notifications.argoproj.io/subscribe.on-sync-succeeded.teams: channelName
+    notifications.argoproj.io/subscribe.on-health-degraded.teams: channelName
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
