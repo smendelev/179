@@ -1,0 +1,30 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx
+  namespace: argocd
+  annotations:
+    notifications.argoproj.io/subscribe.on-deployed.teams: dev-cicd-notifications
+    notifications.argoproj.io/subscribe.on-sync-failed.teams: dev-cicd-notifications
+    notifications.argoproj.io/subscribe.on-sync-succeeded.teams: dev-cicd-notifications
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/smendelev/179.git
+    targetRevision: HEAD
+    path: nginx
+  destination:
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - Validate=true
+      - CreateNamespace=false
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
