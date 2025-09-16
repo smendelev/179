@@ -511,14 +511,14 @@ data:
 
   subscriptions: |
     - recipients:
-        - teams/dev
+        - dev
       triggers:
         - on-deployed
         - on-sync-failed
       selector: environment=dev
 
     - recipients:
-        - teams/prod
+        - prod
       triggers:
         - on-deployed
         - on-sync-failed
