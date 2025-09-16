@@ -542,12 +542,15 @@ data:
 
   template.app-deployed: |
     email:
-      subject: New version of an application {{.app.metadata.name}} is up and running.
-      message: New version of *{{.app.metadata.name}}* is deployed.
+      subject: New version of application {{.app.metadata.name}} is up and running
+    message: |
+      {{if eq .serviceType "teams"}}✔{{end}} New version of *{{.app.metadata.name}}* has been deployed at {{.app.status.operationState.finishedAt}}.
+      Sync details: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}
     teams:
-      title: ✔ New version of {{.app.metadata.name}} is deployed
       attachments: |
         [{
+          "title": "{{.app.metadata.name}}",
+          "title_link": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
           "color": "#18be52",
           "fields": [
             {
@@ -556,7 +559,7 @@ data:
               "short": true
             },
             {
-              "title": "Message",
+              "title": "Commit Message",
               "value": "{{(call .repo.GetCommitMetadata .app.status.sync.revision).Message}}",
               "short": true
             },
@@ -564,9 +567,44 @@ data:
               "title": "Repository",
               "value": "{{.app.spec.source.repoURL}}",
               "short": true
+            },
+            {
+              "title": "Revision",
+              "value": "{{.app.status.sync.revision}}",
+              "short": true
+            },
+            {
+              "title": "Sync Status",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": "Health Status",
+              "value": "{{.app.status.health.status}}",
+              "short": true
             }
+            {{range $index, $image := .app.status.summary.images}},
+            {
+              "title": "Image {{$index}}",
+              "value": "{{$image}}",
+              "short": true
+            }
+            {{end}}
+            {{range $index, $c := .app.status.conditions}}
+            {{if ne $c.type "SharedResourceWarning"}},
+            {
+              "title": "{{$c.type}}",
+              "value": "{{$c.message}}",
+              "short": true
+            }
+            {{end}}
+            {{end}}
           ]
         }]
+      deliveryPolicy: Post
+      groupingKey: "{{.app.metadata.name}}-{{.app.status.sync.revision}}"
+      notifyBroadcast: false
+      title: "✔ Application {{.app.metadata.name}} deployed"
       potentialAction: |-
         [{
           "@type":"OpenUri",
@@ -578,14 +616,12 @@ data:
           "name":"Open Repository",
           "targets":[{"os":"default","uri":"{{.app.spec.source.repoURL | call .repo.RepoURLToHTTPS}}"}]
         }]
-      themeColor: "#18be52"
-      deliveryPolicy: Post
-      groupingKey: ""
-      notifyBroadcast: false
+      themeColor: "#000080"
 
   trigger.on-deployed: |
-    - description: Application is synced and healthy. Triggered once per commit.
-      oncePer: app.status.operationState.syncResult.revision
+    - description: Application is synced and healthy. Triggered per revision per environment.
+      # уникальный ключ для dev/prod каналов
+      oncePer: "{{.app.status.operationState.syncResult.revision}}-{{.app.metadata.name}}"
       send:
         - app-deployed
       when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
