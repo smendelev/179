@@ -508,8 +508,7 @@ data:
   #     when: app.metadata.deletionTimestamp != nil
 
   subscriptions: |
-    - recipients:
-        - teams: dev
+    - recipients: dev
       triggers:
         - on-deployed
         - on-sync-failed
@@ -518,8 +517,7 @@ data:
         - on-sync-succeeded
       selector: environment=dev
 
-    - recipients:
-        - teams: prod
+    - recipients: prod
       triggers:
         - on-deployed
         - on-sync-failed
