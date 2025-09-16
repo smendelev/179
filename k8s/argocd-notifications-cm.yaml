@@ -9,7 +9,8 @@ data:
     argocdUrl: http://localhost:8080
   service.teams: |
     recipientUrls:
-      channelName: $channel-teams-url
+      dev: $channel-dev
+      prod: $channel-prod
   template.app-created: |
     email:
       subject: Application {{.app.metadata.name}} has been created.
