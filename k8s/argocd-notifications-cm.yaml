@@ -580,8 +580,8 @@ data:
       deliveryPolicy: Post
       groupingKey: ""
       notifyBroadcast: false
-    teams:
-      title: New version of an application {{.app.metadata.name}} is up and running.
+    # teams:
+    #   title: New version of an application {{.app.metadata.name}} is up and running.
       potentialAction: |-
         [ {
           "@type":"OpenUri",
