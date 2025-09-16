@@ -543,47 +543,32 @@ data:
   template.app-deployed: |
     email:
       subject: New version of an application {{.app.metadata.name}} is up and running.
-    message: |
-      {{if eq .serviceType "teams"}}✔{{end}} New version of *{{.app.metadata.name}}* is deployed.
+      message: New version of *{{.app.metadata.name}}* is deployed.
     teams:
+      title: ✔ New version of {{.app.metadata.name}} is deployed
       attachments: |
-        [ {
+        [{
           "color": "#18be52",
           "fields": [
-          {
-            "title": "Author",
-            "value": "{{(call .repo.GetCommitMetadata .app.status.sync.revision).Author}}",
-            "short": true
-          },
-          {
-            "title": "Message",
-            "value": "{{(call .repo.GetCommitMetadata .app.status.sync.revision).Message}}",
-            "short": true
-          },
-          {
-            "title": "Repository",
-            "value": "{{.app.spec.source.repoURL}}",
-            "short": true
-          }
-          {{range $index, $c := .app.status.conditions}}
-            {{if ne $c.type "SharedResourceWarning"}}
-            ,
             {
-              "title": "{{$c.type}}",
-              "value": "{{$c.message}}",
+              "title": "Author",
+              "value": "{{(call .repo.GetCommitMetadata .app.status.sync.revision).Author}}",
+              "short": true
+            },
+            {
+              "title": "Message",
+              "value": "{{(call .repo.GetCommitMetadata .app.status.sync.revision).Message}}",
+              "short": true
+            },
+            {
+              "title": "Repository",
+              "value": "{{.app.spec.source.repoURL}}",
               "short": true
             }
-            {{end}}
-          {{end}}
           ]
         }]
-      deliveryPolicy: Post
-      groupingKey: ""
-      notifyBroadcast: false
-    # teams:
-    #   title: New version of an application {{.app.metadata.name}} is up and running.
       potentialAction: |-
-        [ {
+        [{
           "@type":"OpenUri",
           "name":"Operation Application",
           "targets":[{"os":"default","uri":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"}]
@@ -593,7 +578,10 @@ data:
           "name":"Open Repository",
           "targets":[{"os":"default","uri":"{{.app.spec.source.repoURL | call .repo.RepoURLToHTTPS}}"}]
         }]
-      themeColor: "#000080"
+      themeColor: "#18be52"
+      deliveryPolicy: Post
+      groupingKey: ""
+      notifyBroadcast: false
 
   trigger.on-deployed: |
     - description: Application is synced and healthy. Triggered once per commit.
