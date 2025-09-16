@@ -506,6 +506,28 @@ data:
   #     send:
   #     - app-deleted
   #     when: app.metadata.deletionTimestamp != nil
+
+  subscriptions: |
+    - recipients:
+        - teams: dev
+      triggers:
+        - on-deployed
+        - on-sync-failed
+        - on-health-degraded
+        - on-sync-status-unknown
+        - on-sync-succeeded
+      selector: environment=dev
+
+    - recipients:
+        - teams: prod
+      triggers:
+        - on-deployed
+        - on-sync-failed
+        - on-health-degraded
+        - on-sync-status-unknown
+        - on-sync-succeeded
+      selector: environment=prod
+
   trigger.on-deployed: |
     - description: Application is synced and healthy. Triggered once per commit.
       oncePer: app.status.operationState.syncResult.revision
