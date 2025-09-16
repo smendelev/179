@@ -510,22 +510,18 @@ data:
   #     when: app.metadata.deletionTimestamp != nil
 
   subscriptions: |
-    - recipients: ["dev"]
+    - recipients:
+        - teams/dev
       triggers:
         - on-deployed
         - on-sync-failed
-        - on-health-degraded
-        - on-sync-status-unknown
-        - on-sync-succeeded
       selector: environment=dev
 
-    - recipients: ["prod"]
+    - recipients:
+        - teams/prod
       triggers:
         - on-deployed
         - on-sync-failed
-        - on-health-degraded
-        - on-sync-status-unknown
-        - on-sync-succeeded
       selector: environment=prod
 
   trigger.on-deployed: |
