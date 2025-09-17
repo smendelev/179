@@ -1,93 +1,4 @@
-#   # template.app-deployed: |
-#   #   email:
-#   #     subject: New version of application {{.app.metadata.name}} is up and running
-#   #   message: |
-#   #     {{if eq .serviceType "teams"}}✔{{end}} New version of *{{.app.metadata.name}}* has been deployed at {{.app.status.operationState.finishedAt}}.
-#   #     Sync details: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}
-#   #   teams:
-#   #     attachments: |
-#   #       [{
-#   #         "title": "{{.app.metadata.name}}",
-#   #         "title_link": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
-#   #         "color": "#18be52",
-#   #         "fields": [
-#   #           {
-#   #             "title": "Author",
-#   #             "value": "{{(call .repo.GetCommitMetadata .app.status.sync.revision).Author}}",
-#   #             "short": true
-#   #           },
-#   #           {
-#   #             "title": "Commit Message",
-#   #             "value": "{{(call .repo.GetCommitMetadata .app.status.sync.revision).Message}}",
-#   #             "short": true
-#   #           },
-#   #           {
-#   #             "title": "Repository",
-#   #             "value": "{{.app.spec.source.repoURL}}",
-#   #             "short": true
-#   #           },
-#   #           {
-#   #             "title": "Revision",
-#   #             "value": "{{.app.status.sync.revision}}",
-#   #             "short": true
-#   #           },
-#   #           {
-#   #             "title": "Sync Status",
-#   #             "value": "{{.app.status.sync.status}}",
-#   #             "short": true
-#   #           },
-#   #           {
-#   #             "title": "Health Status",
-#   #             "value": "{{.app.status.health.status}}",
-#   #             "short": true
-#   #           }
-#   #           {{range $index, $image := .app.status.summary.images}},
-#   #           {
-#   #             "title": "Image {{$index}}",
-#   #             "value": "{{$image}}",
-#   #             "short": true
-#   #           }
-#   #           {{end}}
-#   #           {{range $index, $c := .app.status.conditions}}
-#   #           {{if ne $c.type "SharedResourceWarning"}},
-#   #           {
-#   #             "title": "{{$c.type}}",
-#   #             "value": "{{$c.message}}",
-#   #             "short": true
-#   #           }
-#   #           {{end}}
-#   #           {{end}}
-#   #         ]
-#   #       }]
-#   #     deliveryPolicy: Post
-#   #     groupingKey: "{{.app.metadata.name}}-{{.app.status.sync.revision}}"
-#   #     notifyBroadcast: false
-#   #     title: "✔ Application {{.app.metadata.name}} deployed"
-#   #     potentialAction: |-
-#   #       [{
-#   #         "@type":"OpenUri",
-#   #         "name":"Operation Application",
-#   #         "targets":[{"os":"default","uri":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"}]
-#   #       },
-#   #       {
-#   #         "@type":"OpenUri",
-#   #         "name":"Open Repository",
-#   #         "targets":[{"os":"default","uri":"{{.app.spec.source.repoURL | call .repo.RepoURLToHTTPS}}"}]
-#   #       }]
-#   #     themeColor: "#000080"
-
-#   # trigger.on-deployed: |
-#   #   - description: Application is synced and healthy. Triggered per revision per environment.
-#   #     # уникальный ключ для dev/prod каналов
-#   #     oncePer: "{{.app.status.operationState.syncResult.revision}}"
-#   #     send:
-#   #       - app-deployed
-#   #     when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
-
-
-
-
-# # рабочий
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -96,40 +7,46 @@ metadata:
 data:
   context: |
     argocdUrl: http://localhost:8080
-
   service.teams: |
     recipientUrls:
-      dev: $channel-dev
-      prod: $channel-prod
-      # dev: "https://moldcablecom.webhook.office.com/webhookb2/325594f5-c0f4-4b70-a979-b7f738d27f12@dc6c79c8-5f6f-4b67-9df2-b5e23289c681/IncomingWebhook/5f272b363d8747e7b729cbc801511124/5d0efaea-8cf4-45af-b629-e9353196e056/V2rTDPwKM6P1iXxEqqa4B2hLwdVnoYYkWQFw9i-yBYLUo1"
-      # prod: "https://moldcablecom.webhook.office.com/webhookb2/325594f5-c0f4-4b70-a979-b7f738d27f12@dc6c79c8-5f6f-4b67-9df2-b5e23289c681/IncomingWebhook/9652ac6eb5694576b07ed90c005c2537/5d0efaea-8cf4-45af-b629-e9353196e056/V2ZTBy8X2ch_m2aUVVyXBoBbjeR9PpjGIYjSNF421ycSU1"
+      # dev: $channel-dev
+      # prod: $channel-prod
+      dev: "https://moldcablecom.webhook.office.com/webhookb2/325594f5-c0f4-4b70-a979-b7f738d27f12@dc6c79c8-5f6f-4b67-9df2-b5e23289c681/IncomingWebhook/5f272b363d8747e7b729cbc801511124/5d0efaea-8cf4-45af-b629-e9353196e056/V2rTDPwKM6P1iXxEqqa4B2hLwdVnoYYkWQFw9i-yBYLUo1"
+      prod: "https://moldcablecom.webhook.office.com/webhookb2/325594f5-c0f4-4b70-a979-b7f738d27f12@dc6c79c8-5f6f-4b67-9df2-b5e23289c681/IncomingWebhook/9652ac6eb5694576b07ed90c005c2537/5d0efaea-8cf4-45af-b629-e9353196e056/V2ZTBy8X2ch_m2aUVVyXBoBbjeR9PpjGIYjSNF421ycSU1"
 
   subscriptions: |
     - recipients:
-        - teams:dev
+        - dev
       triggers:
         - on-deployed
-        - on-sync-succeeded
         - on-sync-failed
-        - on-health-degraded
-        - on-sync-status-unknown
       selector: environment=dev
 
     - recipients:
-        - teams:prod
+        - prod
       triggers:
         - on-deployed
-        - on-sync-succeeded
         - on-sync-failed
-        - on-health-degraded
-        - on-sync-status-unknown
       selector: environment=prod
+
+  # template.app-created: |
+  #   email:
+  #     subject: Application {{.app.metadata.name}} has been created.
+  #   message: Application {{.app.metadata.name}} has been created.
+  #   teams:
+  #     title: Application {{.app.metadata.name}} has been created.
+  # template.app-deleted: |
+  #   email:
+  #     subject: Application {{.app.metadata.name}} has been deleted.
+  #   message: Application {{.app.metadata.name}} has been deleted.
+  #   teams:
+  #     title: Application {{.app.metadata.name}} has been deleted.
 
   template.app-deployed: |
     email:
       subject: New version of an application {{.app.metadata.name}} is up and running.
     message: |
-      ✔ New version of *{{.app.metadata.name}}* is deployed.
+      {{if eq .serviceType "teams"}}✔{{end}} New version of *{{.app.metadata.name}}* is deployed.
     teams:
       title: New version of an application {{.app.metadata.name}} is up and running.
       themeColor: '#000080'
@@ -249,7 +166,7 @@ data:
     email:
       subject: Application {{.app.metadata.name}} has degraded.
     message: |
-      ❌ Application {{.app.metadata.name}} has degraded.
+      {{if eq .serviceType "teams"}}❌{{end}} Application {{.app.metadata.name}} has degraded.
       Application details: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}.
     teams:
       attachments: |
@@ -282,6 +199,7 @@ data:
       deliveryPolicy: Post
       groupingKey: ""
       notifyBroadcast: false
+    teams:
       facts: |
         [{
           "name": "Health Status",
@@ -323,7 +241,7 @@ data:
     email:
       subject: Failed to sync application {{.app.metadata.name}}.
     message: |
-      ❌ The sync operation of application {{.app.metadata.name}} has failed at {{.app.status.operationState.finishedAt}} with the following error: {{.app.status.operationState.message}}
+      {{if eq .serviceType "teams"}}❌{{end}}  The sync operation of application {{.app.metadata.name}} has failed at {{.app.status.operationState.finishedAt}} with the following error: {{.app.status.operationState.message}}
       Sync operation details are available at: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true .
     teams:
       attachments: |
@@ -356,6 +274,7 @@ data:
       deliveryPolicy: Post
       groupingKey: ""
       notifyBroadcast: false
+    teams:
       facts: |
         [{
           "name": "Sync Status",
@@ -479,7 +398,7 @@ data:
     email:
       subject: Application {{.app.metadata.name}} sync status is 'Unknown'
     message: |
-      ❌Application {{.app.metadata.name}} sync is 'Unknown'.
+      {{if eq .serviceType "teams"}}❌{{end}} Application {{.app.metadata.name}} sync is 'Unknown'.
       Application details: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}.
       {{if ne .serviceType "teams"}}
       {{range $c := .app.status.conditions}}
@@ -517,6 +436,7 @@ data:
       deliveryPolicy: Post
       groupingKey: ""
       notifyBroadcast: false
+    teams:
       facts: |
         [{
           "name": "Sync Status",
@@ -557,7 +477,7 @@ data:
     email:
       subject: Application {{.app.metadata.name}} has been successfully synced.
     message: |
-      ✔ Application {{.app.metadata.name}} has been successfully synced at {{.app.status.operationState.finishedAt}}.
+      {{if eq .serviceType "teams"}}✔{{end}} Application {{.app.metadata.name}} has been successfully synced at {{.app.status.operationState.finishedAt}}.
       Sync operation details are available at: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true .
     teams:
       attachments: |
@@ -590,6 +510,7 @@ data:
       deliveryPolicy: Post
       groupingKey: ""
       notifyBroadcast: false
+    teams:
       facts: |
         [{
           "name": "Sync Status",
@@ -691,61 +612,3 @@ data:
       send:
       - app-sync-succeeded
       when: app.status.operationState.phase in ['Succeeded']
-
-
-
-
-
-
-# apiVersion: v1
-# kind: ConfigMap
-# metadata:
-#   name: argocd-notifications-cm
-#   namespace: argocd
-# data:
-#   # 🔗 Контекст с URL ArgoCD
-#   context: |
-#     argocdUrl: http://localhost:8080
-
-#   # 📡 Настройка Teams
-#   service.teams: |
-#     recipientUrls:
-#       dev: "https://moldcablecom.webhook.office.com/webhookb2/325594f5-c0f4-4b70-a979-b7f738d27f12@dc6c79c8-5f6f-4b67-9df2-b5e23289c681/IncomingWebhook/5f272b363d8747e7b729cbc801511124/5d0efaea-8cf4-45af-b629-e9353196e056/V2rTDPwKM6P1iXxEqqa4B2hLwdVnoYYkWQFw9i-yBYLUo1"
-#       prod: "https://moldcablecom.webhook.office.com/webhookb2/325594f5-c0f4-4b70-a979-b7f738d27f12@dc6c79c8-5f6f-4b67-9df2-b5e23289c681/IncomingWebhook/9652ac6eb5694576b07ed90c005c2537/5d0efaea-8cf4-45af-b629-e9353196e056/V2ZTBy8X2ch_m2aUVVyXBoBbjeR9PpjGIYjSNF421ycSU1"
-
-#   template.app-deployed: |
-#     message: |
-#       {
-#         "@type": "MessageCard",
-#         "@context": "http://schema.org/extensions",
-#         "summary": "🎉 Application {{.app.metadata.name}} deployed",
-#         "themeColor": "0076D7",
-#         "sections": [{
-#           "activityTitle": "🎉 Application **{{.app.metadata.name}}** sync succeeded",
-#           "activitySubtitle": "Project: {{.app.spec.project}}",
-#           "facts": [
-#             { "name": "Namespace", "value": "{{.app.spec.destination.namespace}}" },
-#             { "name": "Revision", "value": "{{.app.status.sync.revision}}" },
-#             { "name": "Sync Status", "value": "{{.app.status.sync.status}}" },
-#             { "name": "Health Status", "value": "{{.app.status.health.status}}" }
-#           ],
-#           "markdown": true
-#         }],
-#         "potentialAction": [{
-#           "@type": "OpenUri",
-#           "name": "🔎 View in ArgoCD",
-#           "targets": [
-#             { "os": "default", "uri": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}" }
-#           ]
-#         }]
-#       }
-
-#   trigger.on-deployed: |
-#     - description: Application is synced and healthy. Triggered once per commit.
-#       oncePer: app.status.operationState.syncResult.revision
-#       send:
-#         - app-deployed
-#       when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
-
-#   context: |
-#     argocdUrl: https://argocd.example.com
