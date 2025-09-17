@@ -714,225 +714,227 @@
 
 
 # # рабочий
-# apiVersion: v1
-# kind: ConfigMap
-# metadata:
-#   name: argocd-notifications-cm
-#   namespace: argocd
-# data:
-#   context: |
-#     argocdUrl: http://localhost:8080
-
-#   service.teams: |
-#     recipientUrls:
-#       dev: "https://moldcablecom.webhook.office.com/webhookb2/325594f5-c0f4-4b70-a979-b7f738d27f12@dc6c79c8-5f6f-4b67-9df2-b5e23289c681/IncomingWebhook/5f272b363d8747e7b729cbc801511124/5d0efaea-8cf4-45af-b629-e9353196e056/V2rTDPwKM6P1iXxEqqa4B2hLwdVnoYYkWQFw9i-yBYLUo1"
-#       prod: "https://moldcablecom.webhook.office.com/webhookb2/325594f5-c0f4-4b70-a979-b7f738d27f12@dc6c79c8-5f6f-4b67-9df2-b5e23289c681/IncomingWebhook/9652ac6eb5694576b07ed90c005c2537/5d0efaea-8cf4-45af-b629-e9353196e056/V2ZTBy8X2ch_m2aUVVyXBoBbjeR9PpjGIYjSNF421ycSU1"
-
-#   subscriptions: |
-#     - recipients:
-#         - teams:dev
-#       triggers:
-#         - on-deployed
-#         - on-sync-succeeded
-#         - on-sync-failed
-#         - on-health-degraded
-#         - on-sync-status-unknown
-#       selector: environment=dev
-
-#     - recipients:
-#         - teams:prod
-#       triggers:
-#         - on-deployed
-#         - on-sync-succeeded
-#         - on-sync-failed
-#         - on-health-degraded
-#         - on-sync-status-unknown
-#       selector: environment=prod
-
-#   trigger.on-deployed: |
-#     - description: Application is synced and healthy. Triggered once per commit.
-#       when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
-#       oncePer: app.status.sync.revision
-#       send:
-#         - app-deployed
-
-#   trigger.on-sync-succeeded: |
-#     - when: app.status.operationState.phase in ['Succeeded']
-#       send: [app-sync-succeeded]
-
-#   trigger.on-sync-failed: |
-#     - when: app.status.operationState.phase in ['Failed']
-#       send: [app-sync-failed]
-
-#   trigger.on-health-degraded: |
-#     - when: app.status.health.status == 'Degraded'
-#       send: [app-health-degraded]
-
-#   trigger.on-sync-status-unknown: |
-#     - when: app.status.sync.status == 'Unknown'
-#       send: [app-sync-status-unknown]
-
-#   template.app-deployed: |
-#     message: |
-#       🚀 Application *{{.app.metadata.name}}* has been successfully deployed.
-#     teams:
-#       title: Application {{.app.metadata.name}} deployed
-#       themeColor: '#18be52'
-#       attachments: |
-#         [{
-#           "fields": [
-#             {"title": "Project", "value": "{{.app.metadata.labels.project}}", "short": true},
-#             {"title": "Sync Status", "value": "{{.app.status.sync.status}}", "short": true},
-#             {"title": "Health Status", "value": "{{.app.status.health.status}}", "short": true}
-#           ]
-#         }]
-#       facts: |
-#         [{"name": "Revision", "value": "{{.app.status.sync.revision}}"}]
-#       potentialAction: |-
-#         [{
-#           "@type":"OpenUri",
-#           "name":"Open in ArgoCD",
-#           "targets":[{"os":"default","uri":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"}]
-#         }]
-
-#   template.app-sync-succeeded: |
-#     message: |
-#       🎉 Application *{{.app.metadata.name}}* sync succeeded.
-#     teams:
-#       title: Application {{.app.metadata.name}} synced successfully
-#       themeColor: '#000080'
-#       attachments: |
-#         [{
-#           "fields": [
-#             {"title": "Project", "value": "{{.app.metadata.labels.project}}", "short": true},
-#             {"title": "Sync Status", "value": "{{.app.status.sync.status}}", "short": true}
-#           ]
-#         }]
-#       facts: |
-#         [{"name": "Revision", "value": "{{.app.status.sync.revision}}"}]
-#       potentialAction: |-
-#         [{
-#           "@type":"OpenUri",
-#           "name":"Open in ArgoCD",
-#           "targets":[{"os":"default","uri":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"}]
-#         }]
-
-#   template.app-sync-failed: |
-#     message: |
-#       ❌ Application *{{.app.metadata.name}}* sync failed.
-#     teams:
-#       title: Application {{.app.metadata.name}} sync failed
-#       themeColor: '#FF0000'
-#       attachments: |
-#         [{
-#           "fields": [
-#             {"title": "Project", "value": "{{.app.metadata.labels.project}}", "short": true},
-#             {"title": "Sync Status", "value": "{{.app.status.sync.status}}", "short": true}
-#           ]
-#         }]
-#       facts: |
-#         [{"name": "Revision", "value": "{{.app.status.sync.revision}}"}]
-#       potentialAction: |-
-#         [{
-#           "@type":"OpenUri",
-#           "name":"Open in ArgoCD",
-#           "targets":[{"os":"default","uri":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"}]
-#         }]
-
-#   template.app-health-degraded: |
-#     message: |
-#       ⚠️ Application *{{.app.metadata.name}}* is degraded.
-#     teams:
-#       title: Application {{.app.metadata.name}} degraded
-#       themeColor: '#FFA500'
-#       attachments: |
-#         [{
-#           "fields": [
-#             {"title": "Project", "value": "{{.app.metadata.labels.project}}", "short": true},
-#             {"title": "Health Status", "value": "{{.app.status.health.status}}", "short": true}
-#           ]
-#         }]
-#       facts: |
-#         [{"name": "Revision", "value": "{{.app.status.sync.revision}}"}]
-#       potentialAction: |-
-#         [{
-#           "@type":"OpenUri",
-#           "name":"Open in ArgoCD",
-#           "targets":[{"os":"default","uri":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"}]
-#         }]
-
-#   template.app-sync-status-unknown: |
-#     message: |
-#       ❓ Application *{{.app.metadata.name}}* has unknown sync status.
-#     teams:
-#       title: Application {{.app.metadata.name}} sync status unknown
-#       themeColor: '#808080'
-#       attachments: |
-#         [{
-#           "fields": [
-#             {"title": "Project", "value": "{{.app.metadata.labels.project}}", "short": true},
-#             {"title": "Sync Status", "value": "{{.app.status.sync.status}}", "short": true}
-#           ]
-#         }]
-#       facts: |
-#         [{"name": "Revision", "value": "{{.app.status.sync.revision}}"}]
-#       potentialAction: |-
-#         [{
-#           "@type":"OpenUri",
-#           "name":"Open in ArgoCD",
-#           "targets":[{"os":"default","uri":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"}]
-#         }]
-
-
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: argocd-notifications-cm
   namespace: argocd
 data:
-  # 🔗 Контекст с URL ArgoCD
   context: |
     argocdUrl: http://localhost:8080
 
-  # 📡 Настройка Teams
   service.teams: |
     recipientUrls:
-      dev: "https://moldcablecom.webhook.office.com/webhookb2/325594f5-c0f4-4b70-a979-b7f738d27f12@dc6c79c8-5f6f-4b67-9df2-b5e23289c681/IncomingWebhook/5f272b363d8747e7b729cbc801511124/5d0efaea-8cf4-45af-b629-e9353196e056/V2rTDPwKM6P1iXxEqqa4B2hLwdVnoYYkWQFw9i-yBYLUo1"
-      prod: "https://moldcablecom.webhook.office.com/webhookb2/325594f5-c0f4-4b70-a979-b7f738d27f12@dc6c79c8-5f6f-4b67-9df2-b5e23289c681/IncomingWebhook/9652ac6eb5694576b07ed90c005c2537/5d0efaea-8cf4-45af-b629-e9353196e056/V2ZTBy8X2ch_m2aUVVyXBoBbjeR9PpjGIYjSNF421ycSU1"
+      dev: $channel-dev
+      prod: $channel-prod
+      # dev: "https://moldcablecom.webhook.office.com/webhookb2/325594f5-c0f4-4b70-a979-b7f738d27f12@dc6c79c8-5f6f-4b67-9df2-b5e23289c681/IncomingWebhook/5f272b363d8747e7b729cbc801511124/5d0efaea-8cf4-45af-b629-e9353196e056/V2rTDPwKM6P1iXxEqqa4B2hLwdVnoYYkWQFw9i-yBYLUo1"
+      # prod: "https://moldcablecom.webhook.office.com/webhookb2/325594f5-c0f4-4b70-a979-b7f738d27f12@dc6c79c8-5f6f-4b67-9df2-b5e23289c681/IncomingWebhook/9652ac6eb5694576b07ed90c005c2537/5d0efaea-8cf4-45af-b629-e9353196e056/V2ZTBy8X2ch_m2aUVVyXBoBbjeR9PpjGIYjSNF421ycSU1"
 
-  template.app-deployed: |
-    message: |
-      {
-        "@type": "MessageCard",
-        "@context": "http://schema.org/extensions",
-        "summary": "🎉 Application {{.app.metadata.name}} deployed",
-        "themeColor": "0076D7",
-        "sections": [{
-          "activityTitle": "🎉 Application **{{.app.metadata.name}}** sync succeeded",
-          "activitySubtitle": "Project: {{.app.spec.project}}",
-          "facts": [
-            { "name": "Namespace", "value": "{{.app.spec.destination.namespace}}" },
-            { "name": "Revision", "value": "{{.app.status.sync.revision}}" },
-            { "name": "Sync Status", "value": "{{.app.status.sync.status}}" },
-            { "name": "Health Status", "value": "{{.app.status.health.status}}" }
-          ],
-          "markdown": true
-        }],
-        "potentialAction": [{
-          "@type": "OpenUri",
-          "name": "🔎 View in ArgoCD",
-          "targets": [
-            { "os": "default", "uri": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}" }
-          ]
-        }]
-      }
+  subscriptions: |
+    - recipients:
+        - teams:dev
+      triggers:
+        - on-deployed
+        - on-sync-succeeded
+        - on-sync-failed
+        - on-health-degraded
+        - on-sync-status-unknown
+      selector: environment=dev
+
+    - recipients:
+        - teams:prod
+      triggers:
+        - on-deployed
+        - on-sync-succeeded
+        - on-sync-failed
+        - on-health-degraded
+        - on-sync-status-unknown
+      selector: environment=prod
 
   trigger.on-deployed: |
     - description: Application is synced and healthy. Triggered once per commit.
-      oncePer: app.status.operationState.syncResult.revision
+      when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
+      oncePer: app.status.sync.revision
       send:
         - app-deployed
-      when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
 
-  context: |
-    argocdUrl: https://argocd.example.com
+  trigger.on-sync-succeeded: |
+    - when: app.status.operationState.phase in ['Succeeded']
+      send: [app-sync-succeeded]
+
+  trigger.on-sync-failed: |
+    - when: app.status.operationState.phase in ['Failed']
+      send: [app-sync-failed]
+
+  trigger.on-health-degraded: |
+    - when: app.status.health.status == 'Degraded'
+      send: [app-health-degraded]
+
+  trigger.on-sync-status-unknown: |
+    - when: app.status.sync.status == 'Unknown'
+      send: [app-sync-status-unknown]
+
+  template.app-deployed: |
+    message: |
+      🚀 Application *{{.app.metadata.name}}* has been successfully deployed.
+    teams:
+      title: Application {{.app.metadata.name}} deployed
+      themeColor: '#18be52'
+      attachments: |
+        [{
+          "fields": [
+            {"title": "Project", "value": "{{.app.metadata.labels.project}}", "short": true},
+            {"title": "Sync Status", "value": "{{.app.status.sync.status}}", "short": true},
+            {"title": "Health Status", "value": "{{.app.status.health.status}}", "short": true}
+          ]
+        }]
+      facts: |
+        [{"name": "Revision", "value": "{{.app.status.sync.revision}}"}]
+      potentialAction: |-
+        [{
+          "@type":"OpenUri",
+          "name":"Open in ArgoCD",
+          "targets":[{"os":"default","uri":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"}]
+        }]
+
+  template.app-sync-succeeded: |
+    message: |
+      🎉 Application *{{.app.metadata.name}}* sync succeeded.
+    teams:
+      title: Application {{.app.metadata.name}} synced successfully
+      themeColor: '#000080'
+      attachments: |
+        [{
+          "fields": [
+            {"title": "Project", "value": "{{.app.metadata.labels.project}}", "short": true},
+            {"title": "Sync Status", "value": "{{.app.status.sync.status}}", "short": true}
+          ]
+        }]
+      facts: |
+        [{"name": "Revision", "value": "{{.app.status.sync.revision}}"}]
+      potentialAction: |-
+        [{
+          "@type":"OpenUri",
+          "name":"Open in ArgoCD",
+          "targets":[{"os":"default","uri":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"}]
+        }]
+
+  template.app-sync-failed: |
+    message: |
+      ❌ Application *{{.app.metadata.name}}* sync failed.
+    teams:
+      title: Application {{.app.metadata.name}} sync failed
+      themeColor: '#FF0000'
+      attachments: |
+        [{
+          "fields": [
+            {"title": "Project", "value": "{{.app.metadata.labels.project}}", "short": true},
+            {"title": "Sync Status", "value": "{{.app.status.sync.status}}", "short": true}
+          ]
+        }]
+      facts: |
+        [{"name": "Revision", "value": "{{.app.status.sync.revision}}"}]
+      potentialAction: |-
+        [{
+          "@type":"OpenUri",
+          "name":"Open in ArgoCD",
+          "targets":[{"os":"default","uri":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"}]
+        }]
+
+  template.app-health-degraded: |
+    message: |
+      ⚠️ Application *{{.app.metadata.name}}* is degraded.
+    teams:
+      title: Application {{.app.metadata.name}} degraded
+      themeColor: '#FFA500'
+      attachments: |
+        [{
+          "fields": [
+            {"title": "Project", "value": "{{.app.metadata.labels.project}}", "short": true},
+            {"title": "Health Status", "value": "{{.app.status.health.status}}", "short": true}
+          ]
+        }]
+      facts: |
+        [{"name": "Revision", "value": "{{.app.status.sync.revision}}"}]
+      potentialAction: |-
+        [{
+          "@type":"OpenUri",
+          "name":"Open in ArgoCD",
+          "targets":[{"os":"default","uri":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"}]
+        }]
+
+  template.app-sync-status-unknown: |
+    message: |
+      ❓ Application *{{.app.metadata.name}}* has unknown sync status.
+    teams:
+      title: Application {{.app.metadata.name}} sync status unknown
+      themeColor: '#808080'
+      attachments: |
+        [{
+          "fields": [
+            {"title": "Project", "value": "{{.app.metadata.labels.project}}", "short": true},
+            {"title": "Sync Status", "value": "{{.app.status.sync.status}}", "short": true}
+          ]
+        }]
+      facts: |
+        [{"name": "Revision", "value": "{{.app.status.sync.revision}}"}]
+      potentialAction: |-
+        [{
+          "@type":"OpenUri",
+          "name":"Open in ArgoCD",
+          "targets":[{"os":"default","uri":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}"}]
+        }]
+
+
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: argocd-notifications-cm
+#   namespace: argocd
+# data:
+#   # 🔗 Контекст с URL ArgoCD
+#   context: |
+#     argocdUrl: http://localhost:8080
+
+#   # 📡 Настройка Teams
+#   service.teams: |
+#     recipientUrls:
+#       dev: "https://moldcablecom.webhook.office.com/webhookb2/325594f5-c0f4-4b70-a979-b7f738d27f12@dc6c79c8-5f6f-4b67-9df2-b5e23289c681/IncomingWebhook/5f272b363d8747e7b729cbc801511124/5d0efaea-8cf4-45af-b629-e9353196e056/V2rTDPwKM6P1iXxEqqa4B2hLwdVnoYYkWQFw9i-yBYLUo1"
+#       prod: "https://moldcablecom.webhook.office.com/webhookb2/325594f5-c0f4-4b70-a979-b7f738d27f12@dc6c79c8-5f6f-4b67-9df2-b5e23289c681/IncomingWebhook/9652ac6eb5694576b07ed90c005c2537/5d0efaea-8cf4-45af-b629-e9353196e056/V2ZTBy8X2ch_m2aUVVyXBoBbjeR9PpjGIYjSNF421ycSU1"
+
+#   template.app-deployed: |
+#     message: |
+#       {
+#         "@type": "MessageCard",
+#         "@context": "http://schema.org/extensions",
+#         "summary": "🎉 Application {{.app.metadata.name}} deployed",
+#         "themeColor": "0076D7",
+#         "sections": [{
+#           "activityTitle": "🎉 Application **{{.app.metadata.name}}** sync succeeded",
+#           "activitySubtitle": "Project: {{.app.spec.project}}",
+#           "facts": [
+#             { "name": "Namespace", "value": "{{.app.spec.destination.namespace}}" },
+#             { "name": "Revision", "value": "{{.app.status.sync.revision}}" },
+#             { "name": "Sync Status", "value": "{{.app.status.sync.status}}" },
+#             { "name": "Health Status", "value": "{{.app.status.health.status}}" }
+#           ],
+#           "markdown": true
+#         }],
+#         "potentialAction": [{
+#           "@type": "OpenUri",
+#           "name": "🔎 View in ArgoCD",
+#           "targets": [
+#             { "os": "default", "uri": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}" }
+#           ]
+#         }]
+#       }
+
+#   trigger.on-deployed: |
+#     - description: Application is synced and healthy. Triggered once per commit.
+#       oncePer: app.status.operationState.syncResult.revision
+#       send:
+#         - app-deployed
+#       when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
+
+#   context: |
+#     argocdUrl: https://argocd.example.com

@@ -5,7 +5,7 @@ metadata:
   name: nginx-prod
   namespace: argocd
   labels:
-    environment: prod
+    environment: dev
   # annotations:
   #   notifications.argoproj.io/subscribe.on-deployed.teams: prod
   #   notifications.argoproj.io/subscribe.on-sync-failed.teams: prod
