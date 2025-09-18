@@ -7,10 +7,10 @@ metadata:
   labels:
     environment: prod
   annotations:
-    notifications.argoproj.io/subscribe.on-deployed.teams: dev
-    notifications.argoproj.io/subscribe.on-sync-failed.teams: dev
-    notifications.argoproj.io/subscribe.on-sync-succeeded.teams: dev
-    notifications.argoproj.io/subscribe.on-health-degraded.teams: dev
+    notifications.argoproj.io/subscribe.on-deployed.teams: prod
+    notifications.argoproj.io/subscribe.on-sync-failed.teams: prod
+    notifications.argoproj.io/subscribe.on-sync-succeeded.teams: prod
+    notifications.argoproj.io/subscribe.on-health-degraded.teams: prod
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
