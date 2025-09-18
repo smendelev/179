@@ -602,7 +602,7 @@ metadata:
   name: argocd-notifications-cm
   namespace: argocd
 data:
-  # Определяем Teams сервис и его получателей
+  # Сервис Teams и получатели
   service.teams: |
     recipientUrls:
       channel-dev: $channel-dev
@@ -610,22 +610,22 @@ data:
 
   # Триггеры по умолчанию
   defaultTriggers: |
-    - on-deployed
+    - on-sync-succeeded
 
-  # Триггер на успешное развертывание
-  trigger.on-deployed: |
-    - description: Application is synced and healthy. Triggered once per commit.
-      oncePer: app.status.sync.revision
+  # Триггер на успешный синк (можно вызвать вручную через "Sync" в ArgoCD)
+  trigger.on-sync-succeeded: |
+    - description: Application successfully synced
+      oncePer: app.status.operationState.syncResult.revision
       send:
-      - app-deployed
-      when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
+      - app-sync-succeeded
+      when: app.status.operationState.phase in ['Succeeded']
 
-  # Шаблон уведомления для Teams
-  template.app-deployed: |
+  # Шаблон уведомления для Teams при успешном синке
+  template.app-sync-succeeded: |
     message: |
-      {{if eq .serviceType "teams"}}✔{{end}} Application {{.app.metadata.name}} is now running the new version of deployment manifests.
+      {{if eq .serviceType "teams"}}✔{{end}} Application {{.app.metadata.name}} has been successfully synced.
     teams:
-      title: Application {{.app.metadata.name}} Deployed
+      title: Application {{.app.metadata.name}} Synced
       themeColor: '#18be52'
       deliveryPolicy: Post
       notifyBroadcast: false
@@ -647,7 +647,7 @@ data:
             },
             {
               "title": "Revision",
-              "value": "{{.app.status.sync.revision}}",
+              "value": "{{.app.status.operationState.syncResult.revision}}",
               "short": true
             }
             {{range $index, $c := .app.status.conditions}}
